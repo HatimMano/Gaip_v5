@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import EnvironmentVisualization from '@/components/EnvironmentVisualization';
-import EnvironmentController from '@/components/EnvironmentController';
 import useWebSocket from '@/hooks/useWebSocket';
 
 export default function Home() {
@@ -9,31 +8,31 @@ export default function Home() {
   const [isTraining, setIsTraining] = useState(false);
   const [isInferencing, setIsInferencing] = useState(false);
 
-  // ✅ Mise à jour immédiate de la ref → Évite le délai de synchronisation
+  // Update the ref immediately to avoid synchronization delay
   useEffect(() => {
     isInferencingRef.current = isInferencing;
   }, [isInferencing]);
 
-  // ✅ Lancement immédiat de la connexion WebSocket dès que isInferencing change
+  // Establish WebSocket connection immediately when isInferencing changes
   const { state, sendMessage, closeWebSocket } = useWebSocket(
     isInferencing ? 'ws://localhost:8000/ws' : null
   );
 
-  // ✅ Gestion du training (pas de WebSocket)
+  // Handle training actions (no WebSocket involved)
   const handleTrainingAction = async (action: string) => {
     if (isInferencing) {
       console.warn('🚫 Cannot train while inference is running');
       return;
     }
-  
+
     try {
       const response = await fetch(`http://localhost:8000/training/${action}`, {
         method: 'POST',
       });
-  
+
       const data = await response.json();
       console.log(`✅ Status: ${data.status}`);
-  
+
       if (action === 'start') setIsTraining(true);
       if (action === 'stop') setIsTraining(false);
       if (action === 'pause') console.log('⏸️ Training paused');
@@ -41,33 +40,32 @@ export default function Home() {
       console.error('❌ Error:', error);
     }
   };
-  
 
-  // ✅ Gestion de l'inférence (avec WebSocket)
+  // Handle inference actions (with WebSocket)
   const handleInferenceAction = async (action: string) => {
     if (isTraining) {
       console.warn('🚫 Cannot infer while training is running');
       return;
     }
-  
+
     if (action === 'start') {
       console.log('🚀 Starting inference...');
       setIsInferencing(true);
     }
-  
+
     if (action === 'stop') {
       console.log('🛑 Stopping inference...');
       setIsInferencing(false);
-      closeWebSocket(); // ✅ Fermeture propre du WebSocket
+      closeWebSocket(); // Properly close the WebSocket
     }
-  
+
     if (action === 'pause') {
       console.log('⏸️ Pausing inference...');
-  
-      // ✅ Appel de l'API REST pour mettre en pause
+
+      // Call REST API to pause inference
       try {
         const response = await fetch('http://localhost:8000/inference/pause', {
-          method: 'POST'
+          method: 'POST',
         });
         const data = await response.json();
         console.log(`✅ Status: ${data.status}`);
@@ -75,19 +73,33 @@ export default function Home() {
         console.error('❌ Error pausing inference:', error);
       }
     }
-  
+
     console.log(`🔎 Inference action: ${action}`);
     sendMessage({ action: `${action}_inference` });
   };
-  
+
+  // Save the trained model
+  const saveModel = async () => {
+    console.log('💾 Saving model...');
+
+    try {
+      const response = await fetch('http://localhost:8000/training/save', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      console.log(`✅ Status: ${data.status}`);
+    } catch (error) {
+      console.error('❌ Error saving model:', error);
+    }
+  };
 
   return (
     <div className="wrapper">
-      {/* ✅ Partie Canvas + Inference */}
+      {/* Canvas and Inference Section */}
       <div className="left-section">
         <EnvironmentVisualization state={state} />
-  
-        {/* ✅ Boutons d'inférence */}
+
+        {/* Inference Buttons */}
         <div className="button-group">
           <button
             className="button"
@@ -112,8 +124,8 @@ export default function Home() {
           </button>
         </div>
       </div>
-  
-      {/* ✅ Training panel à droite */}
+
+      {/* Training Panel */}
       <div className="right-section">
         <h3 className="title">Training</h3>
         <div className="button-group">
@@ -140,7 +152,7 @@ export default function Home() {
           </button>
           <button
             className="button"
-            onClick={() => console.log('Saving model...')}
+            onClick={saveModel}
             disabled={!isTraining}
           >
             Save Model
@@ -149,5 +161,4 @@ export default function Home() {
       </div>
     </div>
   );
-  
-}  
+}

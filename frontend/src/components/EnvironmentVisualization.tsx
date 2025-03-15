@@ -4,7 +4,7 @@ interface Props {
   state: number[];
 }
 
-const cellSize = 35; // ✅ Taille ajustée pour un meilleur rendu
+const cellSize = 35; // Adjusted size for better rendering
 const gridSize = 10;
 
 const EnvironmentVisualization: React.FC<Props> = ({ state }) => {
@@ -17,22 +17,22 @@ const EnvironmentVisualization: React.FC<Props> = ({ state }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // ✅ Nettoyage de la zone de dessin
+    // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // ✅ Animation douce → Transition fluide
+    // Smooth animation for transitions
     ctx.fillStyle = '#00ff00';
     ctx.shadowColor = 'rgba(0, 255, 0, 0.6)';
     ctx.shadowBlur = 10;
 
-    // ✅ Dessin du serpent
+    // Draw the snake
     for (let i = 0; i < state.length - 2; i += 2) {
       const x = state[i] * cellSize;
       const y = state[i + 1] * cellSize;
       ctx.fillRect(x, y, cellSize - 2, cellSize - 2);
     }
 
-    // ✅ Dessin de la nourriture (avec une couleur plus douce)
+    // Draw the food (with a softer color)
     ctx.fillStyle = '#ff3366';
     ctx.shadowColor = 'rgba(255, 51, 102, 0.6)';
     ctx.shadowBlur = 15;
@@ -41,7 +41,7 @@ const EnvironmentVisualization: React.FC<Props> = ({ state }) => {
     ctx.fillRect(foodX, foodY, cellSize - 2, cellSize - 2);
   };
 
-  // ✅ Redessiner quand l'état change
+  // Redraw when the state changes
   useEffect(() => {
     drawCanvas();
   }, [state]);
@@ -49,7 +49,7 @@ const EnvironmentVisualization: React.FC<Props> = ({ state }) => {
   return (
     <canvas
       ref={canvasRef}
-      className="canvas" // ✅ Classe CSS déjà définie dans global.css
+      className="canvas" // CSS class defined in global.css
       width={gridSize * cellSize}
       height={gridSize * cellSize}
     />

@@ -6,7 +6,7 @@ const useWebSocket = (url: string | null) => {
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    if (!url || socketRef.current) return; // ✅ Si déjà connecté → Ne pas rouvrir
+    if (!url || socketRef.current) return; // Avoid reconnecting if already connected
 
     socketRef.current = new WebSocket(url);
 
@@ -30,7 +30,7 @@ const useWebSocket = (url: string | null) => {
     };
 
     return () => {
-      // ✅ On ne ferme pas automatiquement → Fermeture manuelle uniquement
+      // No automatic cleanup — manual closure only
     };
   }, [url]);
 

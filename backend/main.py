@@ -1,33 +1,29 @@
-from fastapi import FastAPI, WebSocket
-from fastapi.middleware.cors import CORSMiddleware  # Importer le middleware CORS
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect #type: ignore
+from fastapi.middleware.cors import CORSMiddleware #type: ignore
 from snake.environment import SnakeEnv
 from snake.agent import QLearningAgent
 import asyncio
-import os
-import pickle
 
 app = FastAPI()
 
-# ✅ Configurer CORS
+# Configure CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Autoriser uniquement le frontend
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Autoriser toutes les méthodes (GET, POST, etc.)
-    allow_headers=["*"],  # Autoriser tous les en-têtes
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 env = SnakeEnv()
 agent = QLearningAgent(4)
 
-# ✅ Variables globales pour gérer le training et l'inférence
+# Global state variables
 is_training = False
-is_inferencing = False  # Nouvelle variable pour gérer l'inférence
+is_inferencing = False
 is_paused = False
 current_episode = 0
 max_episodes = 1000
-
-
 
 async def training_loop():
     global is_training, is_paused, current_episode
@@ -47,12 +43,12 @@ async def training_loop():
             current_episode += 1
             print(f"Episode {current_episode} completed")
 
-        await asyncio.sleep(0.1)  # Pour éviter de surcharger le CPU
+        await asyncio.sleep(0.1)
 
-    # Arrêt du training une fois terminé
+    # Stop training and save the model
     is_training = False
+    agent.save_model("model.npy")
     print("Training completed or stopped")
-
 
 @app.post("/training/start")
 async def start_training():
@@ -70,7 +66,6 @@ async def start_training():
     else:
         return {"status": "Training is already running"}
 
-
 @app.post("/training/pause")
 async def pause_training():
     global is_paused
@@ -81,7 +76,6 @@ async def pause_training():
         return {"status": status}
     else:
         return {"status": "Training is not running"}
-
 
 @app.post("/training/stop")
 async def stop_training():
@@ -94,29 +88,37 @@ async def stop_training():
     else:
         return {"status": "Training is not running"}
 
-
 @app.post("/training/save")
 async def save_model():
-    model_path = os.path.join("snake", "model.pkl")
-    os.makedirs(os.path.dirname(model_path), exist_ok=True)
-    with open(model_path, "wb") as f:
-        pickle.dump(agent.get_model(), f)
+    global is_training
+
+    print("🔎 First 5 terms in Q-table:")
+    for i, (state, values) in enumerate(agent.q_table.items()):
+        print(f"State {i + 1}: {state} -> Q-values: {values}")
+        if i == 4:
+            break
+
+    agent.save_model("model.npy")
+
+    if is_training:
+        print("🛑 Stopping training after save...")
+        is_training = False
 
     return {"status": "Model saved"}
-
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     global is_inferencing
 
     if is_training:
-        await websocket.close(code=1000)  # Fermer la connexion WebSocket si le training est en cours
+        await websocket.close(code=1000)
         return {"status": "Cannot start inference while training is running"}
 
     await websocket.accept()
-    is_inferencing = True  # Définir l'état de l'inférence
+    is_inferencing = True
     env.reset()
-    print('Init')
+    print("Init")
+    total_reward = 0
 
     try:
         while True:
@@ -125,20 +127,30 @@ async def websocket_endpoint(websocket: WebSocket):
                 continue
 
             state = tuple(env.get_state())
-            print({'state': state})
+            print({"state": state})
             action = agent.get_action(state)
             next_state, reward, done = env.step(action)
+            total_reward += reward
+
             agent.update(state, action, reward, tuple(next_state))
 
             await websocket.send_json({"state": next_state})
             await asyncio.sleep(0.1)
 
             if done:
-                print({'Reward total': reward})
+                print({"Reward total": total_reward})
                 env.reset()
-    finally:
-        is_inferencing = False  # Réinitialiser l'état de l'inférence
+                total_reward = 0
 
+    except WebSocketDisconnect:
+        print("🔴 WebSocket disconnected cleanly")
+        is_inferencing = False
+
+    except Exception as e:
+        print(f"❌ Error: {e}")
+
+    finally:
+        is_inferencing = False
 
 @app.post("/inference/pause")
 async def pause_inference():
