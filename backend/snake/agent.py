@@ -16,6 +16,7 @@ class QLearningAgent:
             return random.randint(0, self.num_actions - 1)
         if state not in self.q_table:
             self.q_table[state] = np.zeros(self.num_actions)
+        print(np.argmax(self.q_table[state]))
         return np.argmax(self.q_table[state])
 
     def update(self, state, action, reward, next_state):
@@ -30,8 +31,10 @@ class QLearningAgent:
         # Reduce exploration over time
         self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
 
-    def save_model(self, filename):
-        np.save(filename, self.q_table)
 
     def load_model(self, filename):
         self.q_table = np.load(filename, allow_pickle=True).item()
+
+    
+    def get_model(self):
+        return self.q_table

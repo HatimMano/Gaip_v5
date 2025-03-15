@@ -7,7 +7,7 @@ class SnakeEnv:
         self.reset()
 
     def reset(self):
-        self.snake = [[self.grid_size // 2, self.grid_size // 2]]
+        self.snake = [[random.randint(0, self.grid_size - 1), random.randint(0, self.grid_size - 1)]]
         self.food = self._generate_food()
         self.done = False
         return self.get_state()

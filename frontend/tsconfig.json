@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "baseUrl": ".", // ✅ Définit la racine du projet
+    "paths": {
+      "@/*": [
+        "src/*"
+      ], // ✅ Alias global vers le dossier src
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/hooks/*": [
+        "src/hooks/*"
+      ],
+      "@/lib/*": [
+        "src/lib/*"
+      ]
+    },
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
