@@ -1,15 +1,36 @@
-# Ignore MacOS system files
+# 🔥 Fichiers système
 .DS_Store
+Thumbs.db
 
-# Ignore Python cache
+# 🔥 Fichiers de logs
+*.log
+*.out
+
+# 🔥 Dépendances (node_modules et venv)
+node_modules/
+venv/
 __pycache__/
 *.pyc
 
-# Ignore environnement virtuel Python
-venv/
+# 🔥 Fichiers de configuration spécifiques à l'environnement
 .env
+.env.local
 
-# Ignore fichiers spécifiques à VSCode
+# 🔥 Cache de l'IDE
 .vscode/
+.idea/
 
+# 🔥 Build et fichiers temporaires
+dist/
+build/
+*.bak
+*.swp
 
+# 🔥 Fichiers spécifiques à Next.js et FastAPI
+.next/
+coverage/
+.cache/
+
+# 🔥 Fichiers de modèles et de résultats
+backend/snake/model.npy
+backend/snake/model.pkl
