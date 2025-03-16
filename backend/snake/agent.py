@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import os
 
 class QLearningAgent:
     def __init__(self, num_actions):
@@ -10,12 +11,19 @@ class QLearningAgent:
         self.epsilon = 0.1
         self.epsilon_decay = 0.995
         self.epsilon_min = 0.01
+        self.inference_epsilon = 0.01
+        self._load_model()
 
-    def get_action(self, state):
-        if random.uniform(0, 1) < self.epsilon:
-            return random.randint(0, self.num_actions - 1)
+    def get_action(self, state, is_inferencing=False):
         if state not in self.q_table:
             self.q_table[state] = np.zeros(self.num_actions)
+        
+        # If inference : exploitation
+        epsilon = self.inference_epsilon if is_inferencing else self.epsilon
+        
+        if np.random.uniform(0, 1) < epsilon:
+            return np.random.randint(0, self.num_actions)
+        
         return np.argmax(self.q_table[state])
 
     def update(self, state, action, reward, next_state):
@@ -31,8 +39,15 @@ class QLearningAgent:
         self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
 
 
-    def load_model(self, filename):
-        self.q_table = np.load(filename, allow_pickle=True).item()
+    def _load_model(self):
+        if os.path.exists("model.npy"):
+            try:
+                self.q_table = np.load("model.npy", allow_pickle=True).item()
+                print("✅ Loaded existing Q-table from model.npy")
+            except Exception as e:
+                print(f"Error loading model: {e}")
+        else:
+            print("No existing model found. Starting from scratch.")
 
     
     def get_model(self):

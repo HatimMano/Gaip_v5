@@ -110,6 +110,7 @@ async def save_model():
 async def websocket_endpoint(websocket: WebSocket):
     global is_inferencing
 
+
     if is_training:
         await websocket.close(code=1000)
         return {"status": "Cannot start inference while training is running"}
@@ -117,7 +118,6 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     is_inferencing = True
     env.reset()
-    print("Init")
     total_reward = 0
 
     try:
