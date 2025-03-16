@@ -1,8 +1,10 @@
 import numpy as np
 import random
 import os
+from .base_agent import BaseAgent
 
-class QLearningAgent:
+
+class QLearningAgent(BaseAgent):
     def __init__(self, num_actions):
         self.num_actions = num_actions
         self.q_table = {}

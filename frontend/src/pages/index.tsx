@@ -8,17 +8,52 @@ export default function Home() {
   const [isTraining, setIsTraining] = useState(false);
   const [isInferencing, setIsInferencing] = useState(false);
 
-  // Update the ref immediately to avoid synchronization delay
+  // ✅ Feedback values
+  const [currentEpisode, setCurrentEpisode] = useState(0);
+  const [currentReward, setCurrentReward] = useState(0);
+  const [averageReward, setAverageReward] = useState(0);
+  const maxEpisodes = 100;
+
+  // ✅ Update the ref immediately to avoid synchronization delay
   useEffect(() => {
     isInferencingRef.current = isInferencing;
   }, [isInferencing]);
 
-  // Establish WebSocket connection immediately when isInferencing changes
+  // ✅ Establish WebSocket connection immediately when isInferencing changes
   const { state, sendMessage, closeWebSocket } = useWebSocket(
     isInferencing ? 'ws://localhost:8000/ws' : null
   );
 
-  // Handle training actions (no WebSocket involved)
+  // ✅ Fetch training status periodically
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    const fetchTrainingStatus = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/training/status');
+        const data = await response.json();
+
+        setCurrentEpisode(data.current_episode);
+        setCurrentReward(data.current_reward);
+        setAverageReward(data.average_reward);
+      } catch (error) {
+        console.error('❌ Error fetching training status:', error);
+      }
+    };
+
+    if (isTraining) {
+      fetchTrainingStatus(); // First call
+      interval = setInterval(fetchTrainingStatus, 500);
+    } else if (interval) {
+      clearInterval(interval);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isTraining]);
+
+  // ✅ Handle training actions (no WebSocket involved)
   const handleTrainingAction = async (action: string) => {
     if (isInferencing) {
       console.warn('🚫 Cannot train while inference is running');
@@ -41,7 +76,7 @@ export default function Home() {
     }
   };
 
-  // Handle inference actions (with WebSocket)
+  // ✅ Handle inference actions (with WebSocket)
   const handleInferenceAction = async (action: string) => {
     if (isTraining) {
       console.warn('🚫 Cannot infer while training is running');
@@ -61,8 +96,6 @@ export default function Home() {
 
     if (action === 'pause') {
       console.log('⏸️ Pausing inference...');
-
-      // Call REST API to pause inference
       try {
         const response = await fetch('http://localhost:8000/inference/pause', {
           method: 'POST',
@@ -78,7 +111,7 @@ export default function Home() {
     sendMessage({ action: `${action}_inference` });
   };
 
-  // Save the trained model
+  // ✅ Save the trained model
   const saveModel = async () => {
     console.log('💾 Saving model...');
 
@@ -95,11 +128,11 @@ export default function Home() {
 
   return (
     <div className="wrapper">
-      {/* Canvas and Inference Section */}
+      {/* ✅ Canvas and Inference Section */}
       <div className="left-section">
         <EnvironmentVisualization state={state} />
 
-        {/* Inference Buttons */}
+        {/* ✅ Inference Buttons */}
         <div className="button-group">
           <button
             className="button"
@@ -125,9 +158,22 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Training Panel */}
+      {/* ✅ Training Panel */}
       <div className="right-section">
         <h3 className="title">Training</h3>
+
+        {/* ✅ Progress bar */}
+        <progress
+          value={currentEpisode}
+          max={maxEpisodes}
+          className="progress-bar"
+        />
+
+        {/* ✅ Feedback values */}
+        <p>Episodes: {currentEpisode}/{maxEpisodes}</p>
+        <p>Current Reward: {currentReward.toFixed(2)}</p>
+        
+        {/* ✅ Training Buttons */}
         <div className="button-group">
           <button
             className="button"

@@ -1,7 +1,8 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect #type: ignore
 from fastapi.middleware.cors import CORSMiddleware #type: ignore
 from snake.environment import SnakeEnv
-from snake.agent import QLearningAgent
+from snake.q_learning import QLearningAgent
+from snake.dqn import DQNAgent
 import asyncio
 
 app = FastAPI()
@@ -23,10 +24,13 @@ is_training = False
 is_inferencing = False
 is_paused = False
 current_episode = 0
-max_episodes = 1000
+max_episodes = 100
+total_reward = 0
+num_episodes_completed = 0
+current_reward = 0
 
 async def training_loop():
-    global is_training, is_paused, current_episode
+    global is_training, is_paused, current_episode, total_reward, num_episodes_completed, current_reward
 
     while is_training and current_episode < max_episodes:
         if is_paused:
@@ -38,14 +42,18 @@ async def training_loop():
         next_state, reward, done = env.step(action)
         agent.update(state, action, reward, tuple(next_state))
 
+        current_reward += reward
+
         if done:
             env.reset()
             current_episode += 1
-            print(f"Episode {current_episode} completed")
+            total_reward += reward
+            num_episodes_completed += 1
+            print(f"Episode {current_episode} completed - Reward: {current_reward}")
+            current_reward = 0
 
         await asyncio.sleep(0.1)
 
-    # Stop training and save the model
     is_training = False
     agent.save_model("model.npy")
     print("Training completed or stopped")
@@ -121,6 +129,15 @@ async def websocket_endpoint(websocket: WebSocket):
     total_reward = 0
 
     try:
+        agent._load_model()  # Si Q-Learning
+        # agent.load_model("dqn_model.pth")  # Si DQN
+
+    except Exception as e:
+        print(f"❌ Error loading model: {e}")
+        await websocket.close(code=1011)
+        return {"status": "Error loading model"}
+    
+    try:
         while True:
             if is_paused:
                 await asyncio.sleep(0.1)
@@ -158,3 +175,17 @@ async def pause_inference():
     is_paused = not is_paused
     status = "Paused" if is_paused else "Resumed"
     return {"status": status}
+
+@app.get("/training/status")
+async def get_training_status():
+    if num_episodes_completed > 0:
+        average_reward = total_reward / num_episodes_completed
+    else:
+        average_reward = 0
+    
+    return {
+        "current_episode": current_episode,
+        "average_reward": average_reward,
+        "current_reward": current_reward,
+        "status": "Training in progress" if is_training else "Idle"
+    }
