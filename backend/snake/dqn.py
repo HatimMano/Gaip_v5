@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim
+import torch.optim as optim #type: ignore
 import numpy as np
 import os
 from .base_agent import BaseAgent
