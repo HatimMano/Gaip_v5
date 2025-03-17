@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim #type: ignore
 import numpy as np
 import os
-from .base_agent import BaseAgent
+from core.base_agent import BaseAgent
 
 
 class DQNAgent(BaseAgent):

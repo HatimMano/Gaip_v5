@@ -1,7 +1,9 @@
 import numpy as np
 import random
+from core.base_env import GameEnvironment
 
-class SnakeEnv:
+
+class SnakeEnv(GameEnvironment):
     def __init__(self, grid_size=10):
         self.grid_size = grid_size
         self.reset()

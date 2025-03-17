@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import os
-from .base_agent import BaseAgent
+from core.base_agent import BaseAgent
 
 
 class QLearningAgent(BaseAgent):
