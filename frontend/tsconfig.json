@@ -44,7 +44,7 @@
     "**/*.tsx",
     "next-env.d.ts",
     ".next/types/**/*.ts"
-  ],
+, "src/components"  ],
   "exclude": [
     "node_modules"
   ]

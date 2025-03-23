@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI #type: ignore
+from fastapi.middleware.cors import CORSMiddleware #type: ignore
 from routes.training_routes import router as training_router
 from routes.inference_routes import router as inference_router
 from routes.status_routes import router as status_router
