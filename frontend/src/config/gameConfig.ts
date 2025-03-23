@@ -1,4 +1,3 @@
-// gameConfig.ts
 const gameConfig = {
     snake: {
       cellSize: 35,
@@ -9,7 +8,6 @@ const gameConfig = {
       paddleWidth: 10,
       ballRadius: 8,
     },
-    // Ajoutez ici d'autres configurations pour d'autres jeux si nécessaire
   };
   
   export default gameConfig;
