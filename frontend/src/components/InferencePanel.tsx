@@ -1,4 +1,3 @@
-// InferencePanel.tsx
 import React from 'react';
 
 interface InferencePanelProps {

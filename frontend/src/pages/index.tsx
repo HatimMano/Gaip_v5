@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import GameVisualization from '@/components/GameVisualization';
 import InferencePanel from '@/components/InferencePanel';
 import TrainingPanel from '@/components/TrainingPanel';
-import useWebSocket from '@/hooks/useWebSocket';
+import useWebSocket from '@/components/useWebSocket';
 
 export default function Home() {
   // Default game selection and mode flags
-  const [selectedGame, setSelectedGame] = useState("pong");
+  const [selectedGame, setSelectedGame] = useState("tango");
   const [isTraining, setIsTraining] = useState(false);
   const [isInferencing, setIsInferencing] = useState(false);
   const currentMode = isTraining ? "training" : isInferencing ? "inference" : "idle";
@@ -157,6 +157,7 @@ export default function Home() {
           >
             <option value="snake">Snake</option>
             <option value="pong">Pong</option>
+            <option value="tango">Tango</option>
           </select>
         </div>
       </div>
