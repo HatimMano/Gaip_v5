@@ -6,6 +6,19 @@ Thumbs.db
 *.log
 *.out
 
+# Ignore Python cache files and folders
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore node_modules ou d'autres dossiers de packages si nécessaire
+node_modules/
+packages/
+
+
 # 🔥 Dépendances (node_modules et venv)
 node_modules/
 venv/
