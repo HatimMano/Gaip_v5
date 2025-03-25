@@ -19,6 +19,7 @@ node_modules/
 packages/
 
 
+
 # 🔥 Dépendances (node_modules et venv)
 node_modules/
 venv/
