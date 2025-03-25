@@ -4,7 +4,6 @@ import PongVisualization from './PongVisualization';
 import TangoVisualization from './TangoVisualization';
 
 interface GameVisualizationProps {
-  // Pour Tango, l'état est une matrice 2D, pour les autres, l'état peut être un array de nombres.
   state: any;
   game: "snake" | "pong" | "tango" | string;
   mode: "training" | "inference" | "idle";

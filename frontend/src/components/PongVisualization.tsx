@@ -30,21 +30,17 @@ const PongVisualization: React.FC<PongVisualizationProps> = ({ state, mode }) =>
     const ballX = state[2] * canvasWidth;
     const ballY = state[3] * canvasHeight;
 
-    // Draw player paddle
     ctx.fillStyle = '#00ff00';
     ctx.fillRect(10, playerPaddleY, paddleWidth, paddleHeight);
 
-    // Draw opponent paddle
     ctx.fillStyle = '#ff3366';
     ctx.fillRect(canvasWidth - 10 - paddleWidth, opponentPaddleY, paddleWidth, paddleHeight);
 
-    // Draw ball
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
     ctx.fill();
 
-    // Display current mode
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
     ctx.font = "16px Arial";
     ctx.fillText(`Mode: ${mode}`, 10, 20);

@@ -3,7 +3,6 @@ import random
 import logging
 
 
-# Configuration du logger pour le débogage
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler()
@@ -25,11 +24,11 @@ class TangoEnv:
             "equal_pairs": [],
             "diff_pairs": []
         }
-        self.required_count = self.grid_size // 2  # Nombre requis de 'O' et 'C' par ligne/colonne
+        self.required_count = self.grid_size // 2  
         self.max_actions = max_actions
         self.grid = None
         self.done = False
-        self.prev_grid = None  # Pour annuler la dernière action
+        self.prev_grid = None  
         self.reset()
 
     def reset(self):
@@ -38,37 +37,27 @@ class TangoEnv:
         La grille sera pré-remplie aléatoirement avec 5 'O' et 5 'C',
         et des contraintes aléatoires (4 égalités et 4 différences) seront générées.
         """
-        # Créer une grille vide (6x6) remplie de None
         self.grid = np.full((self.grid_size, self.grid_size), None, dtype=object)
         self.done = False
         self.prev_grid = None
-        self.action_count = 0  # Réinitialiser le compteur d'actions
+        self.action_count = 0  
 
-        # Générer la liste de toutes les positions de la grille
         positions = [(i, j) for i in range(self.grid_size) for j in range(self.grid_size)]
-        # Mélanger les positions aléatoirement
         random.shuffle(positions)
 
-        # Placer 5 'O' dans les 5 premières positions sélectionnées
         for (r, c) in positions[:3]:
             self.grid[r][c] = 'O'
-        # Placer 5 'C' dans les 5 positions suivantes
         for (r, c) in positions[7:10]:
             self.grid[r][c] = 'C'
 
-        # Générer des contraintes aléatoires si aucune contrainte n'a été fournie
         if not self.constraints["equal_pairs"]:
-            # Créer la liste de toutes les paires de positions distinctes
             candidate_pairs = []
             for i in range(len(positions)):
                 for j in range(i + 1, len(positions)):
                     candidate_pairs.append((positions[i], positions[j]))
-            # Mélanger les paires et en choisir 4 pour l'égalité et 4 pour la différence
             random.shuffle(candidate_pairs)
             self.constraints["equal_pairs"] = candidate_pairs[:4]
         if not self.constraints["diff_pairs"]:
-            # Utiliser la suite des paires pour les contraintes de différence
-            # (Ou générer une autre fois si besoin de garanties d'indépendance)
             candidate_pairs = []
             for i in range(len(positions)):
                 for j in range(i + 1, len(positions)):
@@ -89,13 +78,11 @@ class TangoEnv:
         """
         row, col, symbol = action
 
-        # Vérification des indices
         if not (0 <= row < self.grid_size and 0 <= col < self.grid_size):
             raise IndexError(f"Indices {(row, col)} are out of bounds for grid size {self.grid_size}.")
         if symbol not in self.symbols:
             raise ValueError(f"Symbole invalide: {symbol}. Doit être parmi {self.symbols}.")
 
-        # Stocker l'état précédent pour permettre un undo
         self.prev_grid = self.grid.copy()
 
         old_value = self.grid[row][col]
@@ -105,7 +92,6 @@ class TangoEnv:
         reward = self._evaluate_action(row, col, symbol, old_value)
         self.done = self._check_if_solved()
 
-        # Si le puzzle n'est pas résolu et que le nombre d'actions dépasse le maximum, appliquer une pénalité
         if not self.done and self.action_count >= self.max_actions:
             logger.debug("Maximum actions reached without solving puzzle.")
             self.done = True
@@ -180,13 +166,11 @@ class TangoEnv:
         if symbol is None:
             return True
 
-        # Vérifier la ligne
         row_symbols = self.grid[row]
         if self._has_three_consecutive(row_symbols):
             logger.debug("Three consecutive symbols in row.")
             return False
 
-        # Vérifier la colonne
         col_symbols = self.grid[:, col]
         if self._has_three_consecutive(col_symbols):
             logger.debug("Three consecutive symbols in column.")
@@ -261,12 +245,10 @@ class TangoEnv:
           3) Chaque ligne et chaque colonne contient exactement required_count 'O' et 'C'.
           4) Les contraintes '=' et 'x' sont respectées.
         """
-        # (1) Vérifier si la grille est complètement remplie
         if np.any(self.grid == None):
             logger.debug("Grid is not completely filled.")
             return False
 
-        # (2) Vérifier la règle des 3 symboles consécutifs
         for r in range(self.grid_size):
             if self._has_three_consecutive(self.grid[r]):
                 logger.debug(f"Three consecutive symbols found in row {r}.")
@@ -276,7 +258,6 @@ class TangoEnv:
                 logger.debug(f"Three consecutive symbols found in column {c}.")
                 return False
 
-        # (3) Vérifier la distribution dans chaque ligne et colonne
         for r in range(self.grid_size):
             row_vals = self.grid[r]
             if np.sum(row_vals == 'O') != self.required_count or np.sum(row_vals == 'C') != self.required_count:
@@ -289,7 +270,6 @@ class TangoEnv:
                 logger.debug(f"Column {c} distribution incorrect.")
                 return False
 
-        # (4) Vérifier les contraintes '=' et 'x'
         if not self._check_constraints():
             logger.debug("Constraints check failed.")
             return False

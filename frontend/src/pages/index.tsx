@@ -5,13 +5,11 @@ import TrainingPanel from '@/components/TrainingPanel';
 import useWebSocket from '@/components/useWebSocket';
 
 export default function Home() {
-  // Default game selection and mode flags
   const [selectedGame, setSelectedGame] = useState("tango");
   const [isTraining, setIsTraining] = useState(false);
   const [isInferencing, setIsInferencing] = useState(false);
   const currentMode = isTraining ? "training" : isInferencing ? "inference" : "idle";
 
-  // WebSocket for inference updates
   const [inferenceState, setInferenceState] = useState<any>([]);
   const inferenceWsUrl = isInferencing ? `ws://localhost:8000/ws?game=${selectedGame}` : null;
   const { state: wsInferenceState, sendMessage, closeWebSocket } = useWebSocket(inferenceWsUrl);
@@ -22,7 +20,6 @@ export default function Home() {
     }
   }, [wsInferenceState]);
 
-  // WebSocket for training updates
   const [trainingState, setTrainingState] = useState<any>([]);
   const trainingWsUrl = isTraining ? `ws://localhost:8000/ws/training?game=${selectedGame}` : null;
   const trainingWS = useWebSocket(trainingWsUrl, true);
@@ -33,7 +30,6 @@ export default function Home() {
     }
   }, [trainingWS.state]);
 
-  // Close inference WebSocket if the game changes during active inference
   useEffect(() => {
     if (isInferencing) {
       console.log(`Game changed to ${selectedGame}. Closing inference WebSocket...`);
@@ -42,7 +38,6 @@ export default function Home() {
     }
   }, [selectedGame]);
 
-  // Periodically fetch training status
   const [currentEpisode, setCurrentEpisode] = useState(0);
   const [currentReward, setCurrentReward] = useState(0);
   const [averageReward, setAverageReward] = useState(0);
@@ -70,7 +65,6 @@ export default function Home() {
     };
   }, [isTraining, selectedGame]);
 
-  // Training actions: start, pause, stop
   const handleTrainingAction = async (action: string) => {
     if (isInferencing) {
       console.warn('Cannot train while inference is running');
@@ -96,7 +90,6 @@ export default function Home() {
     }
   };
 
-  // Inference actions: start, pause, stop
   const handleInferenceAction = async (action: string) => {
     if (isTraining) {
       console.warn('Cannot infer while training is running');
@@ -123,7 +116,6 @@ export default function Home() {
     sendMessage({ action: `${action}_inference`, game: selectedGame });
   };
 
-  // Save model action
   const saveModel = async () => {
     try {
       const response = await fetch(`http://localhost:8000/training/save?game=${selectedGame}`, {

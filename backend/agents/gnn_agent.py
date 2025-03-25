@@ -19,13 +19,12 @@ class GNNQNetwork(nn.Module):
         self.lin = nn.Linear(hidden_channels, out_channels)
     
     def forward(self, data: Data):
-        # data: PyG Data object with attributes x (node features) and edge_index (graph connectivity)
         x, edge_index = data.x, data.edge_index
         x = self.conv1(x, edge_index)
         x = F.relu(x)
         x = self.conv2(x, edge_index)
         x = F.relu(x)
-        q_values = self.lin(x)  # Output shape: [num_nodes, out_channels] (2 actions per node)
+        q_values = self.lin(x)  
         return q_values
 
 class GNNAgent(BaseAgent):
@@ -89,16 +88,12 @@ class GNNAgent(BaseAgent):
         for i in range(N):
             for j in range(N):
                 idx = node_index(i, j)
-                # Up neighbor
                 if i > 0:
                     edge_index.append([idx, node_index(i-1, j)])
-                # Down neighbor
                 if i < N - 1:
                     edge_index.append([idx, node_index(i+1, j)])
-                # Left neighbor
                 if j > 0:
                     edge_index.append([idx, node_index(i, j-1)])
-                # Right neighbor
                 if j < N - 1:
                     edge_index.append([idx, node_index(i, j+1)])
         edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
@@ -116,7 +111,6 @@ class GNNAgent(BaseAgent):
         N = state.shape[0]
         empty_cells = [(i, j) for i in range(N) for j in range(N) if state[i, j] is None]
         if not empty_cells:
-            # If no empty cell is available, return a random action (should rarely occur)
             i, j = np.random.randint(0, N), np.random.randint(0, N)
             symbol = np.random.choice(self.symbols)
             return (i, j, symbol)
@@ -129,7 +123,7 @@ class GNNAgent(BaseAgent):
         self.model.eval()
         with torch.no_grad():
             graph = self.state_to_graph(state)
-            q_values = self.model(graph)  # shape [num_nodes, 2]
+            q_values = self.model(graph)  
         q_values_np = q_values.cpu().numpy()
         
         best_action = None
@@ -161,8 +155,6 @@ class GNNAgent(BaseAgent):
         i, j, symbol = action
         idx = i * N + j
         
-        # Compute target Q-value (simple one-step update)
-        # If next_state is terminal (e.g., full grid), use reward only
         if np.all(next_state != None):
             target = reward
         else:

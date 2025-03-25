@@ -7,17 +7,14 @@ from core.state_machine import State
 
 router = APIRouter()
 
-# Configuration du logger
 logger = logging.getLogger("training")
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 logger.addHandler(handler)
 
-# Global task for training process
 training_task = None
 
-# Set of connected WebSocket clients for training visualization
 training_ws_clients = set()
 
 
@@ -42,7 +39,7 @@ async def training_loop(game: str) -> None:
     agent = get_agent(game)
     state_machine.set_state(State.TRAINING)
 
-    sequence = 0  # Sequence counter for updates
+    sequence = 0  
 
     try:
         while state_machine.state == State.TRAINING and state_machine.current_episode < state_machine.max_episodes:
@@ -50,7 +47,6 @@ async def training_loop(game: str) -> None:
                 await asyncio.sleep(0.1)
                 continue
 
-            # Get current state and perform training step
             state = env.get_state()
             action = agent.get_action(state)
             next_state, reward, done = env.step(action)
@@ -59,7 +55,6 @@ async def training_loop(game: str) -> None:
             state_machine.current_reward += reward
             sequence += 1
 
-            # Prepare training update data
             training_update = {
                 "current_episode": state_machine.current_episode,
                 "current_reward": state_machine.current_reward,
@@ -103,7 +98,7 @@ async def start_training(game: str = "pong") -> dict:
     if state_machine.state != State.TRAINING:
         state_machine.reset()
         if training_task is None or training_task.done():
-            training_task = asyncio.create_task(training_loop(game))  # Using create_task here
+            training_task = asyncio.create_task(training_loop(game))  
         logger.info("Training started for game: %s", game)
         return {"status": "Training started"}
     return {"status": "Training is already running"}

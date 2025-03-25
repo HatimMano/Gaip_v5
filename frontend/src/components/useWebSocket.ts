@@ -9,13 +9,11 @@ const useWebSocket = (url: string | null, useLocalStateUpdate: boolean = false) 
   const latestMessageRef = useRef<any>(null);
   const animationFrameId = useRef<number | null>(null);
 
-  // Schedule a state update using requestAnimationFrame to throttle updates.
   const scheduleUpdate = () => {
     if (animationFrameId.current === null) {
       animationFrameId.current = requestAnimationFrame(() => {
         if (latestMessageRef.current) {
           if (useLocalStateUpdate) {
-            // Update local state with the latest message.
             setState(latestMessageRef.current.state || latestMessageRef.current);
           } else {
             dispatcher.dispatch(latestMessageRef.current);
@@ -38,7 +36,6 @@ const useWebSocket = (url: string | null, useLocalStateUpdate: boolean = false) 
       socketRef.current.onmessage = (event) => {
         const message = JSON.parse(event.data);
         console.log('📥 Message received:', message);
-        // If the message contains a sequence number, keep only the latest.
         if (message.seq) {
           if (!latestMessageRef.current || message.seq > latestMessageRef.current.seq) {
             latestMessageRef.current = message;
@@ -64,7 +61,6 @@ const useWebSocket = (url: string | null, useLocalStateUpdate: boolean = false) 
     }
   }, [url, useLocalStateUpdate]);
 
-  // Register dispatcher state handler if not using local state update.
   useEffect(() => {
     if (!useLocalStateUpdate) {
       dispatcher.registerStateHandler(setState);

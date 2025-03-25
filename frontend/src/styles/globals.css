@@ -5,7 +5,6 @@
   --border-color: #1f2937;
 }
 
-/* Global page styles */
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -18,7 +17,6 @@ body {
   min-height: 100vh;
 }
 
-/* Canvas (game) styling */
 .canvas {
   background-color: #111;
   border-radius: 12px;
@@ -31,7 +29,6 @@ body {
   box-shadow: 0 0 30px rgba(0, 255, 204, 0.8);
 }
 
-/* Main container: three columns (left, center, right) */
 .container {
   display: flex;
   flex-direction: row;
@@ -43,7 +40,6 @@ body {
   margin: 20px auto;
 }
 
-/* Left section (inference panel) */
 .left-section {
   flex: 0 0 220px;
   background-color: #111;
@@ -53,7 +49,6 @@ body {
   box-shadow: 0 0 12px rgba(0, 255, 204, 0.2);
 }
 
-/* Center section */
 .center-section {
   flex: 1;
   display: flex;
@@ -63,7 +58,6 @@ body {
   gap: 20px;
 }
 
-/* Right section (training panel) */
 .right-section {
   flex: 0 0 300px;
   background-color: #111;
@@ -73,7 +67,6 @@ body {
   box-shadow: 0 0 12px rgba(0, 255, 204, 0.2);
 }
 
-/* Title styling */
 .title {
   color: var(--accent);
   font-size: 18px;
@@ -83,7 +76,6 @@ body {
   text-align: center;
 }
 
-/* Button group layout */
 .button-group {
   display: flex;
   flex-wrap: wrap;
@@ -91,7 +83,6 @@ body {
   justify-content: center;
 }
 
-/* Button styling */
 .button {
   background-color: var(--accent);
   color: #000;
@@ -105,7 +96,6 @@ body {
   font-size: 14px;
 }
 
-/* Status text styling */
 .status {
   font-size: 14px;
   color: #fafafa;
@@ -113,7 +103,6 @@ body {
   text-align: center;
 }
 
-/* Progress bar styling */
 .progress-bar {
   width: 100%;
   height: 10px;
@@ -132,7 +121,6 @@ body {
   border-radius: 8px;
 }
 
-/* Game selector styling */
 .game-selector {
   background-color: #111;
   border: 1px solid var(--border-color);

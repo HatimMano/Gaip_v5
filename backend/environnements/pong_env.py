@@ -56,21 +56,17 @@ class PongEnv(GameEnvironment):
         if self.done:
             return self.get_state(), -10, True
 
-        # Update player's paddle position
         if action == 1:
             self.paddle_y = max(0, self.paddle_y - 6)
         elif action == 2:
             self.paddle_y = min(self.height - self.paddle_height, self.paddle_y + 6)
 
-        # Update ball position
         self.ball_x += self.ball_vx
         self.ball_y += self.ball_vy
 
-        # Bounce off top and bottom walls
         if self.ball_y <= 0 or self.ball_y >= self.height:
             self.ball_vy = -self.ball_vy
 
-        # Bounce off player's paddle
         if (self.ball_x <= 20 and 
             self.paddle_y <= self.ball_y <= self.paddle_y + self.paddle_height):
             self.ball_vx = -self.ball_vx
@@ -79,17 +75,14 @@ class PongEnv(GameEnvironment):
         else:
             reward = -0.1
 
-        # Bounce off opponent's paddle
         if (self.ball_x >= self.width - 20 and 
             self.opponent_y <= self.ball_y <= self.opponent_y + self.paddle_height):
             self.ball_vx = -self.ball_vx
 
-        # End episode if ball leaves screen
         if self.ball_x < 0 or self.ball_x > self.width:
             self.done = True
             reward = -10
 
-        # Basic opponent paddle movement
         if self.opponent_y + self.paddle_height // 2 < self.ball_y:
             self.opponent_y += 4
         elif self.opponent_y + self.paddle_height // 2 > self.ball_y:

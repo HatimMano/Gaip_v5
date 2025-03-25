@@ -22,7 +22,6 @@ const SnakeVisualization: React.FC<SnakeVisualizationProps> = ({ state, mode }) 
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw snake segments (all except the last two values)
     ctx.fillStyle = '#00ff00';
     ctx.shadowColor = 'rgba(0, 255, 0, 0.6)';
     ctx.shadowBlur = 10;
@@ -33,7 +32,6 @@ const SnakeVisualization: React.FC<SnakeVisualizationProps> = ({ state, mode }) 
       ctx.fillRect(x * cellSize, y * cellSize, cellSize - 2, cellSize - 2);
     }
 
-    // Draw food (last two values)
     ctx.fillStyle = '#ff3366';
     ctx.shadowColor = 'rgba(255, 51, 102, 0.6)';
     ctx.shadowBlur = 15;
@@ -41,7 +39,6 @@ const SnakeVisualization: React.FC<SnakeVisualizationProps> = ({ state, mode }) 
     const foodY = state[state.length - 1];
     ctx.fillRect(foodX * cellSize, foodY * cellSize, cellSize - 2, cellSize - 2);
 
-    // Display current mode
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
     ctx.font = "16px Arial";
     ctx.fillText(`Mode: ${mode}`, 10, 20);
