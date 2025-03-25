@@ -1,11 +1,11 @@
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
+import torch #type: ignore
+import torch.nn as nn #type: ignore
+import torch.optim as optim #type: ignore
+import torch.nn.functional as F #type: ignore
 import numpy as np
-from torch_geometric.data import Data
-from torch_geometric.nn import GCNConv
-from core.base_agent import BaseAgent  # Assurez-vous que BaseAgent est correctement défini
+from torch_geometric.data import Data #type: ignore
+from torch_geometric.nn import GCNConv #type: ignore
+from core.base_agent import BaseAgent 
 
 class GNNQNetwork(nn.Module):
     """
